@@ -22,7 +22,7 @@ def get_db():
         
         
 @app.post("/blog", status_code=status.HTTP_201_CREATED)
-def create_blog_post(request: schemas.Blog, db: Session = Depends(get_db)) -> dict:
+def create_post(request: schemas.Blog, db: Session = Depends(get_db)) -> dict:
     """
     Create a new blog post.
     """
@@ -38,7 +38,7 @@ def create_blog_post(request: schemas.Blog, db: Session = Depends(get_db)) -> di
 
 
 @app.get("/blog")
-def get_blog_posts(db: Session = Depends(get_db)) -> list[schemas.Blog]:
+def get_posts(db: Session = Depends(get_db)) -> list[schemas.Blog]:
     """
     Retrieve all blog posts.
     """
@@ -47,7 +47,7 @@ def get_blog_posts(db: Session = Depends(get_db)) -> list[schemas.Blog]:
 
 
 @app.get("/blog/{blog_id}", status_code=status.HTTP_200_OK)
-def get_blog_post_id(blog_id: int, response: Response, db: Session = Depends(get_db)) -> schemas.Blog:
+def get_id(blog_id: int, response: Response, db: Session = Depends(get_db)) -> schemas.Blog:
     """
     Retrieve a blog post by its ID.
     """

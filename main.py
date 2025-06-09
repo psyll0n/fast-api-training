@@ -28,13 +28,13 @@ def unpublished_blogs() -> dict:
 
 
 @app.get("/blog/{id}")
-def get_blog(id: int) -> dict:
+def get_ids(id: int) -> dict:
     # Fetch blog by id
     return {"data": id}
 
 
 @app.get("/blog/{id}/comments")
-def get_blog_comments(id: int) -> dict:
+def get_comments(id: int) -> dict:
     # Fetch comments for the blog by id
     return {"data": f"Comments for blog {id}"}
 
