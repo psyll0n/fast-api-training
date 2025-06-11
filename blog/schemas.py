@@ -1,19 +1,15 @@
+from typing import List
 from pydantic import BaseModel
 
 
-# In your schemas.py
-class Blog(BaseModel):
+# blog/schemas.py
+class BlogBase(BaseModel):
     title: str
     body: str
 
+
+class Blog(BlogBase):
     model_config = {"from_attributes": True}
-
-
-class ShowBlog(Blog):
-    class Config:
-        orm_mode = True
-        # This allows the model to work with ORM objects
-        # and convert them to Pydantic models.
 
 
 class User(BaseModel):
@@ -27,5 +23,14 @@ class User(BaseModel):
 class ShowUser(BaseModel):
     username: str
     email: str
+    # This will hold a list of Blog objects associated with the user
+    blogs: list[Blog] = []
 
+    model_config = {"from_attributes": True}
+
+
+class ShowBlog(Blog):
+    title: str
+    body: str
+    creator: ShowUser
     model_config = {"from_attributes": True}

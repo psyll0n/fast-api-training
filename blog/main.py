@@ -30,7 +30,7 @@ def create_post(request: schemas.Blog, db: Session = Depends(get_db)) -> dict:
     """
     Create a new blog post.
     """
-    new_blog = models.Blog(title=request.title, body=request.body)
+    new_blog = models.Blog(title=request.title, body=request.body, user_id=1)
     db.add(new_blog)
     db.commit()
     db.refresh(new_blog)
@@ -38,6 +38,7 @@ def create_post(request: schemas.Blog, db: Session = Depends(get_db)) -> dict:
     return {
         "message": "Blog post created successfully",
         "blog": schemas.Blog.model_validate(new_blog),
+        "creator": schemas.ShowUser.model_validate(new_blog.creator),
     }
 
 
@@ -80,16 +81,27 @@ def update_post(id, request: schemas.Blog, db: Session = Depends(get_db)) -> dic
     }
 
 
-@app.get("/blog", status_code=status.HTTP_200_OK, response_model=list[schemas.Blog], tags=["blogs"])
+@app.get(
+    "/blog",
+    status_code=status.HTTP_200_OK,
+    response_model=list[schemas.Blog],
+    tags=["blogs"],
+)
 def get_posts(db: Session = Depends(get_db)) -> list[schemas.Blog]:
     """
     Retrieve all blog posts.
     """
     blogs = db.query(models.Blog).all()
+
     return blogs
 
 
-@app.get("/blog/{id}", status_code=status.HTTP_200_OK, response_model=schemas.ShowBlog, tags=["blogs"])
+@app.get(
+    "/blog/{id}",
+    status_code=status.HTTP_200_OK,
+    response_model=schemas.ShowBlog,
+    tags=["blogs"],
+)
 def get_id(id: int, response: Response, db: Session = Depends(get_db)) -> schemas.Blog:
     """
     Retrieve a blog post by its ID.
@@ -107,7 +119,12 @@ def get_id(id: int, response: Response, db: Session = Depends(get_db)) -> schema
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-@app.post("/user", response_model=schemas.ShowUser, status_code=status.HTTP_201_CREATED, tags=["users"])
+@app.post(
+    "/user",
+    response_model=schemas.ShowUser,
+    status_code=status.HTTP_201_CREATED,
+    tags=["users"],
+)
 def create_user(
     request: schemas.User, db: Session = Depends(get_db)
 ) -> schemas.ShowUser:
@@ -144,7 +161,12 @@ def create_user(
     return schemas.ShowUser.model_validate(new_user)
 
 
-@app.get("/user/{id}", response_model=schemas.ShowUser, status_code=status.HTTP_200_OK, tags=["users"])
+@app.get(
+    "/user/{id}",
+    response_model=schemas.ShowUser,
+    status_code=status.HTTP_200_OK,
+    tags=["users"],
+)
 def get_user(id: int, db: Session = Depends(get_db)) -> schemas.ShowUser:
     """
     Retrieve a user by their ID.
@@ -156,6 +178,6 @@ def get_user(id: int, db: Session = Depends(get_db)) -> schemas.ShowUser:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found!"
         )
-        
+
     # Convert ORM object to Pydantic schema
     return schemas.ShowUser.model_validate(user)
