@@ -9,7 +9,7 @@ from ..repository import user
 # blog/routers/users.py
 
 router = APIRouter(
-    tags=["users"],
+    tags=["Users"],
     prefix="/user"  # Adjust the prefix as needed
 )
 

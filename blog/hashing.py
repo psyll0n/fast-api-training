@@ -1,16 +1,18 @@
 from passlib.context import CryptContext
 
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 class Hash:
-    def __init__(self, hash_type: str):
-        self.hash_type = hash_type
-
-    def bcrrypt(password: str) -> str:
+    @staticmethod
+    def bcrypt(password: str) -> str:
         """
         Hash a password using bcrypt.
         """
-        pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-        # Create a new user instance with the hashed password
-        hashed_password = pwd_context.hash(password)
-
         return pwd_context.hash(password)
+
+    @staticmethod
+    def verify(plain_password: str, hashed_password: str) -> bool:
+        """
+        Verify a plain password against a hashed password.
+        """
+        return pwd_context.verify(plain_password, hashed_password)

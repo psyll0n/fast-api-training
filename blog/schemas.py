@@ -34,3 +34,21 @@ class ShowBlog(Blog):
     body: str
     creator: ShowUser
     model_config = {"from_attributes": True}
+
+
+class Login(BaseModel):
+    username: str
+    password: str
+
+    model_config = {"from_attributes": True}
+    
+    
+class Token(BaseModel):
+    username: str
+    access_token: str
+    
+
+class TokenData(BaseModel):
+    username: str
+
+    model_config = {"from_attributes": True}

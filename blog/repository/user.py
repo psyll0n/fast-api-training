@@ -11,7 +11,7 @@ def create(request: schemas.User, db: Session):
     new_user = models.User(
         username=request.username,
         email=request.email,
-        password=Hash.bcrrypt(request.password),
+        password=Hash.bcrypt(request.password),
     )
 
     # Check if the username or email already exists
