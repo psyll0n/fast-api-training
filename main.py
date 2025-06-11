@@ -15,7 +15,7 @@ app = FastAPI()
 
 
 @app.get("/")
-def index(limit: int=10, published: bool=True, sort: Optional[str]=None) -> dict:
+def index(limit: int = 10, published: bool = True, sort: Optional[str] = None) -> dict:
     if published:
         return {"data": f"{limit} published blog(s) from the db"}
     return {"data": f"{limit} blog(s) from the db"}

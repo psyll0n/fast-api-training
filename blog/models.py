@@ -8,7 +8,7 @@ class Blog(Base):
     id = Column(Integer, primary_key=True)
     title = Column(String)
     body = Column(Text)
-    
+
 
 class User(Base):
     __tablename__ = "users"
