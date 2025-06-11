@@ -25,7 +25,7 @@ def get_db():
         db.close()
 
 
-@app.post("/blog", status_code=status.HTTP_201_CREATED)
+@app.post("/blog", status_code=status.HTTP_201_CREATED, tags=["blogs"])
 def create_post(request: schemas.Blog, db: Session = Depends(get_db)) -> dict:
     """
     Create a new blog post.
@@ -41,7 +41,7 @@ def create_post(request: schemas.Blog, db: Session = Depends(get_db)) -> dict:
     }
 
 
-@app.delete("/blog/{id}", status_code=status.HTTP_204_NO_CONTENT)
+@app.delete("/blog/{id}", status_code=status.HTTP_204_NO_CONTENT, tags=["blogs"])
 def delete_post(id, db: Session = Depends(get_db)):
     """
     Delete a blog post by its ID.
@@ -57,7 +57,7 @@ def delete_post(id, db: Session = Depends(get_db)):
     return {"message": "Blog post deleted successfully"}
 
 
-@app.put("/blog/{id}", status_code=status.HTTP_202_ACCEPTED)
+@app.put("/blog/{id}", status_code=status.HTTP_202_ACCEPTED, tags=["blogs"])
 def update_post(id, request: schemas.Blog, db: Session = Depends(get_db)) -> dict:
     """
     Update an existing blog post by its ID.
@@ -80,7 +80,7 @@ def update_post(id, request: schemas.Blog, db: Session = Depends(get_db)) -> dic
     }
 
 
-@app.get("/blog")
+@app.get("/blog", status_code=status.HTTP_200_OK, response_model=list[schemas.Blog], tags=["blogs"])
 def get_posts(db: Session = Depends(get_db)) -> list[schemas.Blog]:
     """
     Retrieve all blog posts.
@@ -89,7 +89,7 @@ def get_posts(db: Session = Depends(get_db)) -> list[schemas.Blog]:
     return blogs
 
 
-@app.get("/blog/{id}", status_code=status.HTTP_200_OK, response_model=schemas.ShowBlog)
+@app.get("/blog/{id}", status_code=status.HTTP_200_OK, response_model=schemas.ShowBlog, tags=["blogs"])
 def get_id(id: int, response: Response, db: Session = Depends(get_db)) -> schemas.Blog:
     """
     Retrieve a blog post by its ID.
@@ -107,7 +107,7 @@ def get_id(id: int, response: Response, db: Session = Depends(get_db)) -> schema
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-@app.post("/user", response_model=schemas.ShowUser, status_code=status.HTTP_201_CREATED)
+@app.post("/user", response_model=schemas.ShowUser, status_code=status.HTTP_201_CREATED, tags=["users"])
 def create_user(
     request: schemas.User, db: Session = Depends(get_db)
 ) -> schemas.ShowUser:
@@ -144,7 +144,7 @@ def create_user(
     return schemas.ShowUser.model_validate(new_user)
 
 
-@app.get("/user/{id}", response_model=schemas.ShowUser, status_code=status.HTTP_200_OK)
+@app.get("/user/{id}", response_model=schemas.ShowUser, status_code=status.HTTP_200_OK, tags=["users"])
 def get_user(id: int, db: Session = Depends(get_db)) -> schemas.ShowUser:
     """
     Retrieve a user by their ID.
