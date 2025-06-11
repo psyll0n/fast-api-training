@@ -9,3 +9,19 @@ class Blog(BaseModel):
     model_config = {
         "from_attributes": True
     }
+    
+class ShowBlog(Blog):
+    class Config():
+        orm_mode = True
+        # This allows the model to work with ORM objects
+        # and convert them to Pydantic models.
+        
+        
+class User(BaseModel):
+    username: str
+    email: str
+    password: str
+
+    model_config = {
+        "from_attributes": True
+    }

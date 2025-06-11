@@ -2,6 +2,10 @@ from fastapi import FastAPI, Depends, status, Response, HTTPException
 from sqlalchemy.orm import Session
 from . import models, schemas
 from .database import schemas, engine, SessionLocal
+from passlib.context import CryptContext
+
+
+# blog/main.py
 
 
 app = FastAPI()
@@ -33,7 +37,41 @@ def create_post(request: schemas.Blog, db: Session = Depends(get_db)) -> dict:
     # Convert ORM object to Pydantic schema
     return {
         "message": "Blog post created successfully",
-        "blog": schemas.Blog.from_orm(new_blog)
+        "blog": schemas.Blog.model_validate(new_blog)
+    }
+
+
+@app.delete("/blog/{id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_post(id, db: Session = Depends(get_db)):
+    """
+    Delete a blog post by its ID.
+    """
+    blog = db.query(models.Blog).filter(models.Blog.id == id).first()
+    if not blog:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Blog post not found...")
+    
+    db.delete(blog, synchronize_session=False)
+    db.commit()
+    return {"message": "Blog post deleted successfully"}
+
+
+@app.put("/blog/{id}", status_code=status.HTTP_202_ACCEPTED)
+def update_post(id, request: schemas.Blog, db: Session = Depends(get_db)) -> dict:
+    """
+    Update an existing blog post by its ID.
+    """
+    blog = db.query(models.Blog).filter(models.Blog.id == id)
+    
+    if not blog.first():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Blog post with {id} not found...")
+
+    blog.update(request.dict())
+    db.commit()
+
+    updated_blog = blog.first()
+    return {
+        "message": "Blog post updated successfully",
+        "blog": schemas.Blog.model_validate(updated_blog)
     }
 
 
@@ -46,12 +84,42 @@ def get_posts(db: Session = Depends(get_db)) -> list[schemas.Blog]:
     return blogs
 
 
-@app.get("/blog/{blog_id}", status_code=status.HTTP_200_OK)
-def get_id(blog_id: int, response: Response, db: Session = Depends(get_db)) -> schemas.Blog:
+@app.get("/blog/{id}", status_code=status.HTTP_200_OK, response_model=schemas.ShowBlog)
+def get_id(id: int, response: Response, db: Session = Depends(get_db)) -> schemas.Blog:
     """
     Retrieve a blog post by its ID.
     """
-    blog = db.query(models.Blog).filter(models.Blog.id == blog_id).first()
+    blog = db.query(models.Blog).filter(models.Blog.id == id).first()
     if not blog:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Blog post not found...")
-    return schemas.Blog.from_orm(blog)
+    return schemas.ShowBlog.model_validate(blog)
+
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+@app.post("/user")
+def create_user(request: schemas.User, db: Session = Depends(get_db)) -> dict:
+    """
+    Create a new user.
+    """
+    # Create a new user instance with the hashed password
+    hashed_password = pwd_context.hash(request.password)
+    new_user = models.User(username=request.username, email=request.email, password=hashed_password)
+    # Check if the username or email already exists
+    existing_user = db.query(models.User).filter(
+        (models.User.username == request.username) | (models.User.email == request.email)
+    ).first()
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Username or email already exists."
+        )
+    # Add the new user to the database
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    
+    return {
+        "message": "User created successfully",
+        "user": schemas.User.model_validate(new_user)
+    }
