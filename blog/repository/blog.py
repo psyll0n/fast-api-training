@@ -26,14 +26,14 @@ def create(request: schemas.Blog, db: Session):
         "blog": schemas.Blog.model_validate(new_blog),
         "creator": schemas.ShowUser.model_validate(new_blog.creator),
     }
-    
-    
+
+
 def destroy(id: int, db: Session):
     blog = db.query(models.Blog).filter(models.Blog.id == id).first()
     if not blog:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Blog post with id {id} not found"
+            detail=f"Blog post with id {id} not found",
         )
     db.delete(blog)
     db.commit()
@@ -57,7 +57,7 @@ def update(id: int, request: schemas.Blog, db: Session):
         "message": "Blog post updated successfully",
         "blog": schemas.Blog.model_validate(updated_blog),
     }
-    
+
 
 def show(id: int, db: Session):
     blog = db.query(models.Blog).filter(models.Blog.id == id).first()

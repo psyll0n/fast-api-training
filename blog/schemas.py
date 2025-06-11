@@ -41,12 +41,12 @@ class Login(BaseModel):
     password: str
 
     model_config = {"from_attributes": True}
-    
-    
+
+
 class Token(BaseModel):
     username: str
     access_token: str
-    
+
 
 class TokenData(BaseModel):
     username: str
